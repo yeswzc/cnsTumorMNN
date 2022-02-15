@@ -1,0 +1,16 @@
+Package: cnsTumorMNN
+Type: Package
+Title: cnsTumorMNN package
+Version: 0.1.0
+Author: Zhichao Wu
+Maintainer: Zhichao Wu <zhichao.wu@nih.gov>
+Description: A R package to identity methylation nearest-neighbors from Capper et al.. Nature, 2018. And projecting umap and tsne.
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.2
+Imports:
+    dplyr,
+    minfi,
+    RANN,
+    RColorBrewer

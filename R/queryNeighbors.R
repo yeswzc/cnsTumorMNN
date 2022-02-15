@@ -3,7 +3,14 @@
 #@ k: number of K neighbors to query
 #@ required package RANN, plotly
 #@ return a list of 2 tables and 1 figure list
+#' 
+#' @export
+#' @import dplyr
+#' @import RColorBrewer
+#' @import RANN
 knn.search = function(x.ref, x.query, y.ref = y.ref, k = 15){
+  #library(dplyr)
+  paired.color = RColorBrewer::brewer.pal(12,"Paired")
   nn2.search = RANN::nn2(x.ref, query = x.query, k = k, treetype = "kd")
   idx = nn2.search$nn.idx
   idx.label = as.character(y.ref[nn2.search$nn.idx])

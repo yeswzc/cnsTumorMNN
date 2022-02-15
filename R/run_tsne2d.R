@@ -1,3 +1,5 @@
+#' 
+#' @export
 run_tsne = function(x.ref, x.test, y.ref, n.pc = 94){
     set.seed(123)
     all_tsne = data.frame(Rtsne::Rtsne(rbind(x.ref, x.test)[,1:n.pc], pca=F,max_iter=2500,theta=0,dim=2,verbose=T)$Y)

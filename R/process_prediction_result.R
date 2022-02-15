@@ -1,5 +1,7 @@
 #@ M: response probabilies, column names are the classes
 #@ returns scores with class names
+#' 
+#' @export
 get_class_score = function(M){
   score = sapply(1:nrow(M), function(x){
           M[x,which.max(M[x,])];
@@ -9,6 +11,8 @@ get_class_score = function(M){
 
 #@ M: response probabilies, column names are the classes
 #@ family.list: list of methylation class families. Which family name as name, family member as vector 
+#' 
+#' @export
 get_family_score = function(M, family.list = MCF_family){
   #MCF = names(all_family)
   MCF_family_class = as.character(unlist(MCF_family))
@@ -23,6 +27,8 @@ get_family_score = function(M, family.list = MCF_family){
 
 #@ x: vector
 #@ family.list:
+#' 
+#' @export
 get_family_name = function(x, family.list){
   res = sapply(as.character(x), function(xx){
     if(xx %in% unlist(family.list)){

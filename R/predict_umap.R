@@ -1,8 +1,8 @@
-#load("01.DKFZ_2801.pca.rda")
-#umap = umap(betas.pca$x[,1:94], n_neighbor = 15, n_epochs = 500)
 
+#' 
+#' @export
 predict_umap = function(pca){
-    library(umap)
+    #library(umap)
     #load("/data/wuz6/project/02.DKFZ.classifier/07.queryNeighbors/R/data/data2/DKFZ.2801.pc94umap.rda")
     umap.p = predict(umap, data = pca);
     #

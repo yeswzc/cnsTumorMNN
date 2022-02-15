@@ -1,23 +1,8 @@
-#load("01.DKFZ_2801.pca.rda")
-#load("MNPbetas.32kvar.rda")
-#anno$`methylation class:ch1`[which( anno$`methylation class:ch1` == "PIN T,  PB A")] = "PIN T, PB A"
-#anno$`methylation class:ch1`[which( anno$`methylation class:ch1` == "PIN T,  PB B")] = "PIN T, PB B"
-#xx = sapply(rownames(betas.pca$x), function(x) unlist(strsplit(x, "_"))[1])
-#pca.y = anno$`methylation class:ch1`[match(xx, rownames(anno))]
-#N_non_trivial_pc = 94
-#pca.x = betas.pca$x[,1:N_non_trivial_pc]
-#pca.center = betas.pca$center
-#pca.rotation =  betas.pca$rotation[,1:N_non_trivial_pc]
-#save(pca.x, pca.center, pca.rotation, pca.y, file = "DKFZ.2801.pc94.rda")
-
-load("/data/wuz6/project/02.DKFZ.classifier/07.queryNeighbors/R/data/DKFZ.train2801.filter.sd32k.pc300Data.v1.1.rda")
-#"pca.center"   "pca.rotation" "x.ref"        "y.ref"
-#@ targets: table
+#' getBetas32k
+#' @export
 getBetas32k = function(RGset, targets, keep_probes = names(pca.center)){
-    source("/data/wuz6/software/mnp_training/R/MNPprocessIDAT_functions.R")
-    #keep_probes_file = "/data/wuz6/project/02.DKFZ.classifier/07.queryNeighbors/R/data/DKFZ.train2801.filter.sd32k.prbles.gz" 
-    #if(! file.exists(keep_probes_file)){ stop("cannot fine the list of 32k probes: ", keep_probes_file,"\n"); }
-    batch_coor_data = "/data/wuz6/project/02.DKFZ.classifier/07.queryNeighbors/R/data/data2/ba.coef.RData"
+    #batch_coor_data = file.path(package.path <- find.package("cnsTumorMNN"),
+     #                           "data/ba.coef.RData")
     #message("rgset")
     #RGset <- minfi::read.metharray.exp(targets = targets,force=TRUE, verbose = T)
     message("mset...")
@@ -30,7 +15,7 @@ getBetas32k = function(RGset, targets, keep_probes = names(pca.center)){
     rm(RGset)
     message("keep probes done in Mset")
 #
-    load(batch_coor_data)
+    #load(batch_coor_data)
 
     if( sum(! keep_probes %in% names(methy.coef[[1]]) ) > 0 ){
         stop("Error: probes not found in batch correction data ", batch_coor_data,"\n",
@@ -42,8 +27,8 @@ getBetas32k = function(RGset, targets, keep_probes = names(pca.center)){
     unmethy.coef[[1]] = unmethy.coef[[1]][keep_probes]
     unmethy.coef[[2]] = unmethy.coef[[1]][keep_probes]
 
-    methy <- getMeth(Mset)
-    unmethy <- getUnmeth(Mset)
+    methy <- minfi::getMeth(Mset)
+    unmethy <- minfi::getUnmeth(Mset)
 
     rm(Mset)
 
@@ -62,8 +47,8 @@ getBetas32k = function(RGset, targets, keep_probes = names(pca.center)){
 }
 
 
-
-#@ betas:
+#' getBetas32k
+#' @export
 pca_transform = function(betas, n.pc = 300){
     #load("/data/wuz6/project/02.DKFZ.classifier/07.queryNeighbors/R/data/DKFZ.train2801.filter.sd32k.pc300Data.rda")
     #load("/data/wuz6/project/02.DKFZ.classifier/07.queryNeighbors/R/data/DKFZ.train2801.filter.sd32k.pc300Data.v1.1.rda")

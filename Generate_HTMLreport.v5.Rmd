@@ -1,0 +1,217 @@
+---
+class: center
+#background-image: url("images/cool.png")
+set_title: !r test_title
+output: 
+  html_document:
+      theme: default
+      fig_crop: false
+---
+---
+title: 'Methylation analysis'
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+<img src="https://www.cancer.gov/profiles/custom/cgov_site/themes/custom/cgov/static/images/design-elements/logos/nci-logo-full.svg" alt="logo" style="height:50px;position:absolute; top:40px; left:10px; padding:10px;"/>
+
+
+```{css, echo=FALSE}
+.main-container {
+    max-width: 100%;
+}
+
+h1 {
+  text-align: center;
+  background-color:#A6CEE3;
+  border-radius: 0px; 
+  padding: 20px;
+}
+
+    
+```
+
+
+<style>
+div.lblue { background-color:#DEEBF7; border-radius: 0px; padding: 5px;}
+</style>
+<div class = "lblue">
+## `r sampleName`
+<br>
+**Histologic diagnosis**:
+<br>
+<div style="display:inline-block;margin-left:10px">
+`r histologicDx`
+</div>
+<br> <br> 
+`r kable(class.table) %>% kable_styling(bootstrap_options = "striped", full_width = F, position = "left") %>% 
+ row_spec(0, background = "grey", color = "white") %>%
+ row_spec(1:nrow(class.table), background = "white", color = "black") %>%
+ add_header_above(c("Methylation prediction" = ncol(class.table)), bold = T, font_size = 15) `
+<br> <br>
+...
+</div>
+
+<div class = "row">
+```{r purity,  echo =FALSE, warning = FALSE, message=FALSE}
+kable(p.table) %>%  kable_styling(bootstrap_options = "striped", full_width = F, position = "left") %>% 
+    add_header_above(c("Tumor purity estimations" = ncol(p.table)), bold = T, font_size = 20)
+```
+</div>
+
+
+
+```{r generate tables and figures, echo =FALSE, warning = FALSE, message=FALSE, error = FALSE, R.options = list(error = recover)}
+#p1 = plotly::subplot(res1[[3]], shareX = T, titleX = T, titleY = T) 
+
+pass.index = which(res1[[1]]$PASS=="Y")
+res1[[1]]$ID = sapply(res1[[1]]$ID, function(x) unlist(strsplit(x, "_"))[1]);
+table.1 = kable(res1[[1]]) %>%
+  kable_styling("striped", full_width = F, position = "left") %>%
+  row_spec(pass.index, bold = T,background = scales::alpha(paired.color[3], 0.5) ) %>%
+  row_spec(0, background = "grey", color = "white")%>%
+  footnote(general = "The 15 nearest neighbors in DKFZ's 2081 samples. (doi:10.1038/nature26000)",
+           number = c("ID: sample ID","Cancer: cancer type", 
+                      "Distance: The distance of diagnosis sample to the sample in 'ID' column",
+                      "Threshold: The threshold used to defined 'PASS' column. The threshold is defined by taking the minumum of mean distance of distances within this subclass and distance between samples in this subclass and other samples in DKFZ's data.",
+                      "PASS: is the diagnosis cases located within close distance to this cancer type. Y: yes, N: no."),
+           footnote_as_chunk = F)  %>% 
+  add_header_above(c("Nearest 15 neighbors" = ncol(res1[[1]])), bold = T, font_size = 20)
+
+not.informative = which(res1[[2]]$`N PASS` == 0)
+informative = which(res1[[2]]$`N PASS` > 0)
+res1[[2]] = res1[[2]][c(informative,not.informative),]
+table.2 = res1[[2]][,c(1,3,2)] %>%
+    mutate(Cancer = ifelse(`N PASS`>0, cell_spec(Cancer, background =paired.color[3]),
+                         cell_spec(Cancer, background ="transparent")),
+        `N PASS` = ifelse(`N PASS` >0, cell_spec(`N PASS`, background =paired.color[3]),
+                         cell_spec(`N PASS`, background ="transparent"))) %>%
+        kable("html",escape = F) %>%
+        kable_styling("striped", full_width = F, position = "left")
+if(length(informative) > 0){
+    table.2 = table.2 %>% pack_rows("Informative neighbors", start_row = 1, 
+        end_row = length(informative), 
+        label_row_css = "background-color: #B2DF8A; color: black;")
+}
+if(length(not.informative) > 0){
+    table.2 = table.2 %>% pack_rows("Not informative neighbors", start_row = length(informative) + 1,
+        end_row = nrow(res1[[2]]), label_row_css = "background-color: grey; color: white;") %>%
+        row_spec( (length(informative) + 1):(nrow(res1[[2]])), background = "grey", color = "white" )
+}
+
+table.2 = table.2 %>% 
+  row_spec(0, background = "grey", color = "white") %>%
+  add_header_above(c("Frequency of nearest neighbor classes" = ncol(res1[[2]]) ), bold = T, font_size = 20 ) %>%
+  scroll_box(width = "100%", height = "300px%") %>%
+  footnote(general = "Frequency table of nearest 15 neighbor cancer types. N PASS: number of neighbors pass the distance threshold.")
+
+#2d umap
+umap.center = aggregate(umap.layout[,1:2], list(umap.layout$class), median)
+colnames(umap.center)[1] = "class"
+idx = which(umap.center$class == sampleName)
+myArrow <- list(
+    x = umap.center$X1[idx],y = umap.center$X2[idx],
+    text = paste0("<b>", sampleName, "</b>"),
+    textangle = 0, ax = 0, ay = -75,
+    bgcolor = alpha("yellow", 0.5),
+    font = list(color = "black", size=12),
+    arrowcolor = "black", arrowsize = 3, arrowwidth = 1, arrowhead = 2);
+all_annotations = lapply(unique(y.ref), function(x){
+    idx = which(umap.center$class == x)
+    ann = list(showarrow = F, x = umap.center$X1[idx], y = umap.center$X2[idx], 
+    text = paste0("<b>",umap.center$class[idx],"</b>"), 
+    bgcolor = alpha("white", 0.5),
+    font = list(size = 10, color = plot.col[umap.center$class[idx]]));
+    ann;
+})
+all_annotations[[length(all_annotations)+1]] = myArrow
+p1 = plot_ly(x = umap.layout$X1, y  = umap.layout$X2, text = umap.layout$class,
+             color = umap.layout$class, colors = plot.col,
+             type="scatter", mode = "markers") %>%
+     layout(annotations = all_annotations, showlegend = FALSE,
+                   xaxis = list(title = "umap 1", zeroline = FALSE), 
+                   yaxis = list(title = "umap 2", zeroline = FALSE))
+
+
+
+#2d tsne
+tsne.center = aggregate(tsne[,1:2], list(tsne$class), median)
+colnames(tsne.center)[1] = "class"
+idx = which(tsne.center$class == sampleName)
+myArrow <- list(
+    x = tsne.center$X1[idx],y = tsne.center$X2[idx],
+    text = paste0("<b>", sampleName, "</b>"),
+    textangle = 0, ax = 0, ay = -75,
+    bgcolor = alpha("yellow", 0.5),
+    font = list(color = "black", size=12),
+    arrowcolor = "black", arrowsize = 3, arrowwidth = 1, arrowhead = 2)
+all_annotations = lapply(unique(y.ref), function(x){
+    idx = which(tsne.center$class == x)
+    ann = list(showarrow = F, x = tsne.center$X1[idx], y = tsne.center$X2[idx], 
+    text = paste0("<b>",tsne.center$class[idx],"</b>"), 
+    bgcolor = alpha("white", 0.5),
+    font = list(size = 10, color = plot.col[tsne.center$class[idx]]));
+    ann;
+})
+all_annotations[[length(all_annotations)+1]] = myArrow
+p2 = plot_ly(x = tsne$X1, y  = tsne$X2, text = tsne$class,
+             color = tsne$class, colors = plot.col,
+             type="scatter", mode = "markers") %>%
+     layout(annotations = all_annotations, showlegend = FALSE,
+                   xaxis = list(title = "tsne 1", zeroline = FALSE), 
+                   yaxis = list(title = "tsne 2", zeroline = FALSE))
+
+
+
+```
+
+
+<div class = "row">
+<br> <br> <br>
+<div class = "col-sm-3">
+### Methylation nearest neighbors
+```{r Table1, , echo =FALSE, warning = FALSE, message=FALSE}
+table.2
+```
+</div>
+
+<div class = "col-lg-9">
+
+### UMAP 
+```{r UMAP, error=TRUE, echo =FALSE, warning = FALSE, message=FALSE, out.width = "100%", dev.args=list(bg="white")}
+p1
+#draw(h, heatmap_legend_side = "bottom", merge_legend = F, annotation_legend_side ="bottom", adjust_annotation_extension = TRUE)
+```
+</div>
+</div>
+
+
+
+<br> <br>
+<br> <br>
+<div class = "row">
+<div class = "col-sm-4">
+```{r Table2 , echo =FALSE, warning = FALSE, message=FALSE}
+table.1 %>%  scroll_box(width = "100%", height = "800px")
+```
+</div>
+<div class = "col-md-8">
+### TSNE
+```{r Figure2 TSNE, error=TRUE, echo =FALSE, warning = FALSE, message=FALSE, out.width = "95%", dpi = 100, dev.args=list(pointsize=3,bg="transparent")}
+p2
+```
+</div>
+</div>
+
+## CNV plot based on methylation profile. (Only available when DKFZ classifier is installed.)
+```{r CNV, error=TRUE, echo=FALSE, echo =FALSE, warning = FALSE, message=FALSE, out.width="80%", fig.height = 2.8, dpi = 100,  dev.args=list(pointsize=3,bg="transparent") }
+par(ps = 5, cex = 1, cex.main = 2, las =1)
+#MNPcnvplot1(Mset, sex = sex, main = sampleName)
+#MNPcnvplot(Mset, sex = sex, main = sampleName, set_par = F)
+```
+<br> <br>
+<div style="display:inline-block;margin-left:15px">
+Gains/amplifications represent positive, losses negative deviations from the baseline. 29 brain tumor relevant gene regions are highlighted for easier assessment.
+</div>
+
+

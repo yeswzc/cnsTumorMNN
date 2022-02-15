@@ -13,22 +13,24 @@ idat_path = as.character(args[1])
 output = as.character(args[2])
 #####################################################################3
 #mnpversion = "v11b6"
+library(caret) #knn3
+library(glmnet)
+library(cnsTumorMNN)
 package.path <- find.package("cnsTumorMNN")
-paired.color = RColorBrewer::brewer.pal(12,"Paired")
-#library(caret)
 library(dplyr)
 library(plotly)
-library(RANN)
+#library(RANN)
 library(knitr)
 library(kableExtra)
+#suppressMessages(library(mnp.v11b6))
 library(IlluminaHumanMethylationEPICmanifest) #CNV
 library(IlluminaHumanMethylationEPICanno.ilm10b4.hg19) #CNV
-#suppressMessages(library(mnp.v11b6))
 library(RFpurify)
 library(LUMP)
-library(cnsTumorMNN)
 
-rmd_file = file.path(package.path, "R/Generate_HTMLreport.v5.Rmd")
+#rmd_file = file.path(package.path, "R/Generate_HTMLreport.v5.Rmd")
+rmd_file = "./Generate_HTMLreport.v5.Rmd"
+paired.color = RColorBrewer::brewer.pal(12,"Paired")
 #####################################################################
 #####################################################################
 
@@ -42,23 +44,25 @@ RGset = read.metharray.exp(targets = targets, verbose=T, force=TRUE)
 print(colnames(RGset))
 
 ###Run DKFZ classifier
-#if(! file.exists(paste0(output, ".cns_tmp.Rda"))){
-#    cat("Run DKFZ classifier...\n");
-#    CNSclassifier = lapply(1:nrow(targets), function(x) classifier(RGset, targets$idat[x], targets$Material_Type[x]));
-#    CNSclassifier = data.frame(do.call(rbind, CNSclassifier));
-#    colnames(CNSclassifier) = c("ID","predFFPE","CNS.MCF","CNS.Subclass", 
-#                                "RFpurify.ABSOLUTE", "RFpurify.ESTIMATE", "LUMP");
-
-#    CNSclassifier = cbind(CNSclassifier, targets[,c(1:(ncol(targets)-1))])
-#    #save(CNSclassifier, targets, file = paste0(output,".cns_tmp.Rda"))
-#}else{
-#    load(paste0(output,".cns_tmp.Rda"))
-#}
+if(! file.exists(paste0(output, ".cns_tmp.Rda"))){
+    #cat("Run DKFZ classifier...\n");
+    cat("Run Tumor purity...\n");
+    CNSclassifier = lapply(1:nrow(targets), function(x) classifier(RGset, targets$idat[x], targets$Material_Type[x]));
+    CNSclassifier = data.frame(do.call(rbind, CNSclassifier));
+    #colnames(CNSclassifier) = c("ID","predFFPE","CNS.MCF","CNS.Subclass", 
+    #                            "RFpurify.ABSOLUTE", "RFpurify.ESTIMATE", "LUMP");
+    colnames(CNSclassifier) = c("ID", 
+                                "RFpurify.ABSOLUTE", "RFpurify.ESTIMATE", "LUMP");
+    CNSclassifier = cbind(CNSclassifier, targets[,c(1:(ncol(targets)-1))])
+    save(CNSclassifier, targets, file = paste0(output,".cns_tmp.Rda"))
+}else{
+    load(paste0(output,".cns_tmp.Rda"))
+}
 
 #get beta values
 if(! file.exists(paste0(output, ".betas32k.rda")) ){
     betas = getBetas32k(RGset, targets);
-    #save(betas, file = paste0(output, ".betas32k.rda"))
+    save(betas, file = paste0(output, ".betas32k.rda"))
 }else{
     load(paste0(output, ".betas32k.rda"))
 }
@@ -80,7 +84,7 @@ if(! file.exists(paste0(output, ".tsne.rda") ) ){
     test.tsne = tsne_s[[2]]
     ref.tsne.center = tsne_s[[3]]
     rm(tsne_s)
-    #save(ref.tsne, test.tsne, ref.tsne.center, file = paste0(output, ".tsne.rda"))
+    save(ref.tsne, test.tsne, ref.tsne.center, file = paste0(output, ".tsne.rda"))
 }else{
     load(paste0(output, ".tsne.rda"))
 }
@@ -94,7 +98,7 @@ if(! file.exists(paste0(output, ".umap.rda") ) ){
     ref.umap.center = umap_s[[3]]
     rm(umap_s)
     y.test = targets$Sample_Name
-    #save(ref.umap, test.umap, ref.umap.center, y.ref, y.test, file = paste0(output, ".umap.rda"))
+    save(ref.umap, test.umap, ref.umap.center, y.ref, y.test, file = paste0(output, ".umap.rda"))
 }else{
     load(paste0(output, ".umap.rda"))
 }
@@ -158,10 +162,12 @@ colnames(targets)[which(colnames(targets) == "Sample_name")] = "Sample_Name";
     knn.pred.MCFclass.score = round(knn.p1[i],2)
     knn.pred.class = names(knn.p2[i])
     knn.pred.class.score = round(knn.p2[i],2)
-    class.table = data.frame(Classifier = c("CNSv11b6"), MCF = c(cns.p1), Score = c(cns.p1.score), 
-                             Subclass = c(cns.p2), Score = c(cns.p2.score), check.names = F)
-    if(cns.p2 == cns.p1) class.table = data.frame(Classifier = c("CNSv11b6"), 
-                                                  Prediction = c(cns.p1), Score = c(cns.p1.score));
+    #class.table = data.frame(Classifier = c("CNSv11b6"), MCF = c(cns.p1), Score = c(cns.p1.score), 
+    #                         Subclass = c(cns.p2), Score = c(cns.p2.score), check.names = F)
+    #if(cns.p2 == cns.p1) class.table = data.frame(Classifier = c("CNSv11b6"), 
+    #                                              Prediction = c(cns.p1), Score = c(cns.p1.score));
+    class.table = data.frame(Classifier = c("KNN"), MCF = c(knn.pred.MCFclass), Score = c(knn.pred.MCFclass.score), 
+                             Subclass = c(knn.pred.class), Score = c(knn.pred.class.score), check.names = F)
     row.names(class.table) = NULL
 
     histologicDx = paste0("**Diagnosis**: ", targets$Diagnosis[i],". **Age**: ", targets$Age[i], 
