@@ -1,5 +1,5 @@
 # cnsTumorMNN
-* Query nearest neighbors in 'Capper et al.. Nature. 2018' for central nervous tumors. Meanwhile, umap, tsne will also be plotted.
+* Query nearest neighbors in 'Capper et al.. Nature. 2018' for central nervous tumors. Meanwhile, a KNN classification with calibrated score, umap, tsne will also be plotted.
 
 * R/3.6 is suggested.
 
