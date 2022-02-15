@@ -7,9 +7,11 @@
 
 # How to install
 * There are many packages required before installations. The packages include but not limitted to umap, Rtsne, minfi, LUMP, RFpurify, dplyr, caret, glmnet, plotly, RANN, knitr, kableExtra, RColorBrewer...
-### Install LUMP 
+* ### Install LUMP 
 devtools::install_github("yeswzc/LUMP")
-### Install cnsTumorMNN, an imperfect package
+* ### Install cnsTumorMNN, an imperfect package
+Download the package from here: https://github.com/yeswzc/cnsTumorMNN/releases and then
+
 install.packages("cnsTumorMNN_0.1.0.tar.gz", repos = NULL, type = "source")
 
 #devtools::install_github("yeswzc/cnsTumorMNN") #This may not work.
@@ -18,6 +20,8 @@ install.packages("cnsTumorMNN_0.1.0.tar.gz", repos = NULL, type = "source")
 After install finished.
 Download 'pipeline.v5.R' and 'Generate_HTMLreport.v5.Rmd', then you can run <br> </br>
 `Rscript /path/to/pipeline.v5.R /path/to/idat_directory/ output_prefix`
+
+Sample_Sheet.csv is required in the idat_directory.
 
 
 # Reference: 
