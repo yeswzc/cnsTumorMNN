@@ -3,14 +3,17 @@
 ##Requirement:
 ##R/3.6
 ##
-args = commandArgs(trailingOnly = TRUE)
+args = commandArgs(trailingOnly = F)
 
-if(length(args) != 2){
+if(length(args) != 5 + 2){
       stop("Usage: [idat.folder] [output.prefix]\n")
 }
 
-idat_path = as.character(args[1])
-output = as.character(args[2])
+idat_path = as.character(args[5+1])
+output = as.character(args[5+2])
+code.dir <- gsub("--file=", "", args[4])
+code.dir <- paste0(dirname(code.dir), "/")
+
 #####################################################################3
 #mnpversion = "v11b6"
 library(caret) #knn3
@@ -28,8 +31,7 @@ library(IlluminaHumanMethylationEPICanno.ilm10b4.hg19) #CNV
 library(RFpurify)
 library(LUMP)
 
-#rmd_file = file.path(package.path, "R/Generate_HTMLreport.v5.Rmd")
-rmd_file = "./Generate_HTMLreport.v5.Rmd"
+rmd_file = file.path(code.dir, "Generate_HTMLreport.v5.Rmd")
 paired.color = RColorBrewer::brewer.pal(12,"Paired")
 #####################################################################
 #####################################################################
