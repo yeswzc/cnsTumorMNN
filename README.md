@@ -26,3 +26,4 @@ Sample_Sheet.csv is required in the idat_directory.
 
 # Reference: 
 Wu et al.. Impact of the methylation classifier and ancillary methods on CNS tumor diagnostics. Neuro-oncology, 2021 (https://doi.org/10.1093/neuonc/noab227).
+Capper et al.. DNA methylation-based classification of central nervous system tumours. Nature, 2018. (DOI: 10.1038/nature26000)
