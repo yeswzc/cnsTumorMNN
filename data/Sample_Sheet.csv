@@ -1,0 +1,16 @@
+[Header],,,,,,,,,,,,,,,,
+Investigator Name,NA,,,,,,,,,,,,,,,
+Project Name,Clinical Testing,,,,,,,,,,,,,,,
+Experiment Name,2.04297E+11,,,,,,,,,,,,,,,
+Date,9/28/20,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,
+[Data],,,,,,,,,,,,,,,,
+Sample_Name,Sample_Well,Sample_Plate,Sample_Group,Pool_ID,Sentrix_ID,Sentrix_Position,Material_Type,Gender,Surgical_Case,Diagnosis,Age,Notes,Tumor_site,Pi_Collaborator,Outside_ID,Surgery_date
+Y945,A01,Clinical Testing,EPIC,9/28/20,2.04297E+11,R01C01,FFPE,Female,NA,"Epithelioid neoplasm, GFAP positive",58,NA,"Brain, right parietoccipital lobe, craniotomy",NA,NA,NA
+KC-MX55,B01,Kidney Project,EPIC,9/28/20,2.04297E+11,R02C01,FFPE,Male,NA,Renal cell carcinoma,38,NA,Kidney,NA,NA,NA
+KC-MX56,C01,NA,EPIC,9/28/20,2.04297E+11,R03C01,FFPE,Male,NA,NA,38,NA,NA,NA,NA,NA
+KC-MX57,D01,NA,EPIC,9/28/20,2.04297E+11,R04C01,FFPE,Male,NA,NA,38,NA,NA,NA,NA,NA
+KC-MX58,E01,NA,EPIC,9/28/20,2.04297E+11,R05C01,FFPE,Male,NA,NA,70,NA,NA,NA,NA,NA
+KC-MX59,F01,NA,EPIC,9/28/20,2.04297E+11,R06C01,FFPE,Male,NA,NA,70,NA,NA,NA,NA,NA
+KC-MX60,G01,NA,EPIC,9/28/20,2.04297E+11,R07C01,FFPE,Male,NA,NA,62,NA,NA,NA,NA,NA
+KC-MX61,H01,NA,EPIC,9/28/20,2.04297E+11,R08C01,FFPE,Male,NA,NA,62,NA,NA,NA,NA,NA
